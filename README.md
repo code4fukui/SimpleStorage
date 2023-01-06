@@ -24,9 +24,9 @@ nginx -s reload
 
 cd /home/ss
 su ss
-git clone https://github.com/code4fukui/simplestorage.git
+git clone https://github.com/code4fukui/SimpleStorage.git
 
-cd simplestorage
+cd SimpleStorage
 cat > run.sh
 nohup deno run -A simplestorage.js 8802 &
 sh run.sh
