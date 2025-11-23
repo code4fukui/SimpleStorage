@@ -47,6 +47,8 @@ const saveHTML2 = async (d, pass, idx) => {
     return idx;
   } else {
     try {
+      idx = parseInt(idx);
+      if (isNaN(idx)) return "err: idx is not number";
       const dpass = await Deno.readTextFile("static/" + idx + ".html.pass");
       const dpass2 = digest(pass);
       if (dpass != dpass2) return "err: pass not match";
@@ -57,7 +59,7 @@ const saveHTML2 = async (d, pass, idx) => {
       }
       return idx;
     } catch (e) {
-      console.log(e);
+      //console.log(e);
     }
     return "err: pass not match";
   }
