@@ -1,12 +1,13 @@
 # simple storage
 
+A simple storage server service for Deno
 
 ## setup on server
 
-- set up Ubuntu
-- install nginx
-- install Let's Encrypt (certbot-auto)
-- install [Deno](https://deno.land/)
+1. set up Ubuntu
+2. install nginx
+3. install Let's Encrypt (certbot-auto)
+4. install [Deno](https://deno.land/)
 
 ```bash
 adduser ss
@@ -33,7 +34,7 @@ git clone https://github.com/code4fukui/SimpleStorage.git
 
 cd SimpleStorage
 cat > run.sh << EOF
-nohup deno run -A simplestorage.js 8802 &
+nohup deno serve --port 8802 -A simplestorage.js &
 EOF
 
 sh run.sh
