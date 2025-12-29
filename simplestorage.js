@@ -1,4 +1,4 @@
-import { serveAPI } from "https://js.sabae.cc/wsutil.js";
+import { makeFetch } from "./serverutil.js";
 import { SHAKE128 } from "https://code4fukui.github.io/SHA3/SHAKE128.js";
 import { Base16 } from "https://code4fukui.github.io/Base16/Base16.js";
 
@@ -65,16 +65,17 @@ const saveHTML2 = async (d, pass, idx) => {
   }
 };
 
-serveAPI("/api/", async (param, req, path, conninfo) => {
+const api = async (param, req, path, conninfo) => {
+  // todo: log
   try {
     const d = param;
     if (d === null) {
       return "err: null";
     }
-    if (path == "/api/") { // ver 1
+    if (path == "") { // ver 1
       const idx = await saveHTML(d);
       return idx;
-    } else if (path == "/api/save") {
+    } else if (path == "save") {
       const idx = param.idx;
       const d = param.html;
       const pass = param.pass;
@@ -82,6 +83,9 @@ serveAPI("/api/", async (param, req, path, conninfo) => {
       return idx2;
     }
   } catch (e) {
+    //console.log(e);
     return null;
   }
-});
+};
+
+export default { fetch: makeFetch(api) };

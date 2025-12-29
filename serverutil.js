@@ -1,0 +1,68 @@
+import { serveDir, serveFile } from "jsr:@std/http/file-server";
+import { CBOR } from "https://js.sabae.cc/CBOR.js";
+
+export const ret = (body, status = 200, mime = "text/plain") => {
+  if (body instanceof Uint8Array) {
+    if (mime == "text/plain") {
+      mime = "application/octet-stream";
+    }
+  }  else if (typeof body == "object") {
+    //body = CBOR.encode(body);
+    //mime = "application/cbor";
+    body = new TexcEncoder().encode(JSON.stringify(body));
+    mime = "application/json";
+  }
+  return new Response(
+    body,
+    {
+      status,
+      headers: {
+        "Content-Type": mime,
+        "Access-Control-Allow-Origin": "*",
+        //"Access-Control-Allow-Headers": "*",
+      },
+    },
+  );
+};
+
+const decoder = new TextDecoder();
+
+const get = async (req) => {
+  const ctype = req.headers.get("Content-Type");
+  //console.log(ctype, req.headers);
+  if (!ctype) return null;
+  const bin = await req.bytes();
+  if (ctype == "text/plain") {
+    return decoder.decode(bin);
+  } else if (ctype == "application/cbor") {
+    return CBOR.decode(bin);
+  } else if (ctype == "application/json") {
+    return JSON.parse(decoder.decode(bin));
+  } else if (ctype == "application/octet-stream") {
+    return bin;
+  } // application/x-www-form-urlencoded
+  throw new Error("unsupported ctype");
+};
+
+export const makeFetch = (api) => {
+  const serveAPI = async (path, req, conn) => {
+    if (req.method == "OPTIONS") return ret("ok");
+    const param = await get(req);
+    const res = await api(param, req, path, conn);
+    if (res) {
+      return ret(res)
+    }
+    return ret("not found", 404);
+  };
+  const serve = async (req, conn) => {
+    const path = new URL(req.url).pathname;
+    if (path.startsWith("/api/")) {
+      return serveAPI(path.substring("/api/".length), req, conn);
+    //} else if (path == "/PubkeyUser.js") {
+    //  return serveFile(req, "." + path);
+    } else {
+      return serveDir(req, { fsRoot: "static", urlRoot: "" });
+    }
+  };
+  return serve;
+};
