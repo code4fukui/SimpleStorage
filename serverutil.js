@@ -1,4 +1,4 @@
-import { serveDir, serveFile } from "jsr:@std/http/file-server";
+import { serveDir } from "jsr:@std/http/file-server";
 import { CBOR } from "https://js.sabae.cc/CBOR.js";
 
 export const ret = (body, status = 200, mime = "text/plain") => {
@@ -25,10 +25,22 @@ export const ret = (body, status = 200, mime = "text/plain") => {
   );
 };
 
-const addCORS = (res) => {
+export const addCORS = (res) => {
   const headers = res.headers;
   headers.set("Access-Control-Allow-Origin", "*");
   headers.set("Access-Control-Allow-Headers", "*");
+  return res;
+};
+
+export const serveDirCORS = async (req, opt) => {
+  const isHead = req.method === "HEAD";
+  const method = isHead ? "GET" : req.method;
+  const req2 = req.method == "GET" ? req : new Request(req.url, { method, headers: req.headers });
+  const res = await serveDir(req2, opt);
+  addCORS(res);
+  if (isHead) {
+    return new Response(null, { status: res.status, headers: res.headers });
+  }
   return res;
 };
 
@@ -65,10 +77,8 @@ export const makeFetch = (api) => {
     const path = new URL(req.url).pathname;
     if (path.startsWith("/api/")) {
       return await serveAPI(path.substring("/api/".length), req, conn);
-    //} else if (path == "/PubkeyUser.js") {
-    //  return serveFile(req, "." + path);
     } else {
-      return addCORS(await serveDir(req, { fsRoot: "static", urlRoot: "" }));
+      return await serveDirCORS(req, { fsRoot: "static", urlRoot: "" });
     }
   };
   return serve;
