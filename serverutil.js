@@ -19,10 +19,17 @@ export const ret = (body, status = 200, mime = "text/plain") => {
       headers: {
         "Content-Type": mime,
         "Access-Control-Allow-Origin": "*",
-        //"Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Headers": "*",
       },
     },
   );
+};
+
+const addCORS = (res) => {
+  const headers = res.headers;
+  headers.set("Access-Control-Allow-Origin", "*");
+  headers.set("Access-Control-Allow-Headers", "*");
+  return res;
 };
 
 const decoder = new TextDecoder();
@@ -57,11 +64,11 @@ export const makeFetch = (api) => {
   const serve = async (req, conn) => {
     const path = new URL(req.url).pathname;
     if (path.startsWith("/api/")) {
-      return serveAPI(path.substring("/api/".length), req, conn);
+      return await serveAPI(path.substring("/api/".length), req, conn);
     //} else if (path == "/PubkeyUser.js") {
     //  return serveFile(req, "." + path);
     } else {
-      return serveDir(req, { fsRoot: "static", urlRoot: "" });
+      return addCORS(await serveDir(req, { fsRoot: "static", urlRoot: "" }));
     }
   };
   return serve;
