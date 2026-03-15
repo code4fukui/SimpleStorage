@@ -1,5 +1,7 @@
 # SimpleStorage
 
+> 日本語のREADMEはこちらです: [README.ja.md](README.ja.md)
+
 A simple storage server service for Deno.
 
 ## Features
