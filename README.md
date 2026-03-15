@@ -1,42 +1,57 @@
-# simple storage
+# SimpleStorage
 
-A simple storage server service for Deno
+A simple storage server service for Deno.
 
-## setup on server
+## Features
+- Stores and retrieves HTML files with a simple API
+- Supports password-protected files
+- Limits file size to 32KB
 
-1. set up Ubuntu
-2. install nginx
-3. install Let's Encrypt (certbot-auto)
-4. install [Deno](https://deno.land/)
+## Requirements
+- Ubuntu server
+- Nginx web server
+- Let's Encrypt (certbot-auto) for SSL certificates
+- Deno runtime
 
-```bash
-adduser ss
-chmod 755 /home/ss
-passwd ss
+## Usage
 
-sudo cat > /etc/nginx/conf.d/ss_sabae_cc.conf <<EOF
-server {
-  listen 80;
-  server_name ss.sabae.cc;
-  location / {
-    proxy_pass http://localhost:8802/;
-  }
-}
-EOF
+1. Set up the server:
+   - Install Ubuntu
+   - Install Nginx
+   - Install Let's Encrypt (certbot-auto)
+   - Install [Deno](https://deno.land/)
+   - Create a user 'ss' with home directory `/home/ss`
 
-nginx -s reload
+2. Configure Nginx:
+   ```bash
+   sudo cat > /etc/nginx/conf.d/ss_sabae_cc.conf <<EOF
+   server {
+     listen 80;
+     server_name ss.sabae.cc;
+     location / {
+       proxy_pass http://localhost:8802/;
+     }
+   }
+   EOF
+   nginx -s reload
+   ```
 
-./certbot-auto
+3. Obtain an SSL certificate with Let's Encrypt:
+   ```bash
+   ./certbot-auto
+   ```
 
-cd /home/ss
-su ss
-git clone https://github.com/code4fukui/SimpleStorage.git
+4. Clone the repository and run the server:
+   ```bash
+   cd /home/ss
+   su ss
+   git clone https://github.com/code4fukui/SimpleStorage.git
+   cd SimpleStorage
+   cat > run.sh << EOF
+   nohup deno serve --port 8802 -A simplestorage.js &
+   EOF
+   sh run.sh
+   ```
 
-cd SimpleStorage
-cat > run.sh << EOF
-nohup deno serve --port 8802 -A simplestorage.js &
-EOF
-
-sh run.sh
-```
-
+## License
+MIT License
