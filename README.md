@@ -56,4 +56,4 @@ A simple storage server service for Deno.
    ```
 
 ## License
-MIT License
+MIT License — see [LICENSE](LICENSE).
