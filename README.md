@@ -29,7 +29,7 @@ A simple storage server service for Deno.
    sudo cat > /etc/nginx/conf.d/ss_sabae_cc.conf <<EOF
    server {
      listen 80;
-     server_name ss.sabae.cc;
+     server_name ss.sabae.cc; # Replace with your own domain or IP address
      location / {
        proxy_pass http://localhost:8802/;
      }
