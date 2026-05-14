@@ -6,11 +6,15 @@ export const ret = (body, status = 200, mime = "text/plain") => {
     if (mime == "text/plain") {
       mime = "application/octet-stream";
     }
-  }  else if (typeof body == "object") {
-    //body = CBOR.encode(body);
-    //mime = "application/cbor";
-    body = new TexcEncoder().encode(JSON.stringify(body));
-    mime = "application/json";
+  } else if (typeof body == "object") {
+    if (mime == "application/cbor") {
+      body = CBOR.encode(body);
+    } else {
+      body = new TexcEncoder().encode(JSON.stringify(body));
+      mime = "application/json";
+    }
+  } else if (typeof body == "string") {
+    mime = "text/plain";
   }
   return new Response(
     body,
@@ -46,8 +50,7 @@ export const serveDirCORS = async (req, opt) => {
 
 const decoder = new TextDecoder();
 
-const get = async (req) => {
-  const ctype = req.headers.get("Content-Type");
+const get = async (req, ctype) => {
   //console.log(ctype, req.headers);
   if (!ctype) return null;
   const bin = await req.bytes();
@@ -63,13 +66,14 @@ const get = async (req) => {
   throw new Error("unsupported ctype");
 };
 
-export const makeFetch = (api) => {
+export const makeFetch = (api) => { // await api(param, req, path, conn);
   const serveAPI = async (path, req, conn) => {
     if (req.method == "OPTIONS") return ret("ok");
-    const param = await get(req);
+    const ctype = req.headers.get("Content-Type");
+    const param = await get(req, ctype);
     const res = await api(param, req, path, conn);
     if (res) {
-      return ret(res)
+      return ret(res, 200, ctype);
     }
     return ret("not found", 404);
   };

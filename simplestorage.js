@@ -39,6 +39,7 @@ const saveHTML2 = async (d, pass, idx) => {
   }
   if (!idx) {
     const idx = await getIndex();
+    console.log("new idx", idx)
     await Deno.writeFile("static/" + idx + ".html", d2);
     if (pass) {
       const dpass = digest(pass);
@@ -59,7 +60,7 @@ const saveHTML2 = async (d, pass, idx) => {
       }
       return idx;
     } catch (e) {
-      //console.log(e);
+      console.log(e);
     }
     return "err: pass not match";
   }
@@ -67,6 +68,7 @@ const saveHTML2 = async (d, pass, idx) => {
 
 const api = async (param, req, path, conninfo) => {
   // todo: log
+  console.log(path, param);
   try {
     const d = param;
     if (d === null) {
@@ -79,11 +81,14 @@ const api = async (param, req, path, conninfo) => {
       const idx = param.idx;
       const d = param.html;
       const pass = param.pass;
+      console.log("html2", d, pass, idx)
       const idx2 = await saveHTML2(d, pass, idx);
       return idx2;
+    } else {
+      console.log("not found")
     }
   } catch (e) {
-    //console.log(e);
+    console.log(e);
     return null;
   }
 };
